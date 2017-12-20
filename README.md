@@ -1,2 +1,2 @@
 # sshsnipps
-Code exerpts with open ssh
+Code excerpts with open ssh
