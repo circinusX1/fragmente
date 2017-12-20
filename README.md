@@ -1,2 +1,4 @@
-# sshsnipps
-Code excerpts with open ssh
+## sshsnipps
+#Code excerpts with open ssh
+
+    Open each file for details
