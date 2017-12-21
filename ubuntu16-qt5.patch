@@ -1,0 +1,510 @@
+diff --git a/phoenixcoin-qt.pro b/phoenixcoin-qt.pro
+index 90d7286..e126daa 100644
+--- a/phoenixcoin-qt.pro
++++ b/phoenixcoin-qt.pro
+@@ -1,9 +1,12 @@
+ TEMPLATE = app
++
+ TARGET = phoenixcoin-qt
+ VERSION = 0.6.6.1
+ INCLUDEPATH += src src/json src/qt
+ DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE USE_IPV6
+ CONFIG += no_include_pwd
++CONFIG += qt gui
++QT += widgets
+ QMAKE_CFLAGS += -DSHA256 -DASM -DOPT
+ 
+ # for boost 1.54, add -mt to the boost libraries
+diff --git a/src/bitcoinrpc.cpp b/src/bitcoinrpc.cpp
+index e8ad1e3..760047e 100644
+--- a/src/bitcoinrpc.cpp
++++ b/src/bitcoinrpc.cpp
+@@ -2629,7 +2629,7 @@ int ReadHTTPStatus(std::basic_istream<char>& stream, int &proto)
+ int ReadHTTPHeader(std::basic_istream<char>& stream, map<string, string>& mapHeadersRet)
+ {
+     int nLen = 0;
+-    loop
++    loopx
+     {
+         string str;
+         std::getline(stream, str);
+@@ -3193,7 +3193,7 @@ void ThreadRPCServer3(void* parg)
+     AcceptedConnection *conn = (AcceptedConnection *) parg;
+ 
+     bool fRun = true;
+-    loop {
++    loopx {
+         if (fShutdown || !fRun)
+         {
+             conn->close();
+diff --git a/src/db.cpp b/src/db.cpp
+index 613960a..668cb82 100644
+--- a/src/db.cpp
++++ b/src/db.cpp
+@@ -690,7 +690,7 @@ bool CTxDB::LoadBlockIndexGuts()
+ 
+     // Load mapBlockIndex
+     unsigned int fFlags = DB_SET_RANGE;
+-    loop
++    loopx
+     {
+         // Read next record
+         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+diff --git a/src/init.cpp b/src/init.cpp
+index c3ad9d8..9b76d0a 100644
+--- a/src/init.cpp
++++ b/src/init.cpp
+@@ -49,7 +49,7 @@ void ExitTimeout(void* parg)
+ void StartShutdown()
+ {
+ #ifdef QT_GUI
+-    // ensure we leave the Qt main loop for a clean GUI exit (Shutdown() is called in bitcoin.cpp afterwards)
++    // ensure we leave the Qt main loopx for a clean GUI exit (Shutdown() is called in bitcoin.cpp afterwards)
+     uiInterface.QueueShutdown();
+ #else
+     // Without UI, Shutdown() can simply be started in a new thread
+diff --git a/src/irc.cpp b/src/irc.cpp
+index 1ae567d..e586663 100644
+--- a/src/irc.cpp
++++ b/src/irc.cpp
+@@ -79,7 +79,7 @@ static bool Send(SOCKET hSocket, const char* pszSend)
+ 
+ bool RecvLineIRC(SOCKET hSocket, string& strLine)
+ {
+-    loop
++    loopx
+     {
+         bool fRet = RecvLine(hSocket, strLine);
+         if (fRet)
+@@ -102,7 +102,7 @@ bool RecvLineIRC(SOCKET hSocket, string& strLine)
+ 
+ int RecvUntil(SOCKET hSocket, const char* psz1, const char* psz2=NULL, const char* psz3=NULL, const char* psz4=NULL)
+ {
+-    loop
++    loopx
+     {
+         string strLine;
+         strLine.reserve(10000);
+@@ -137,7 +137,7 @@ bool Wait(int nSeconds)
+ bool RecvCodeLine(SOCKET hSocket, const char* psz1, string& strRet)
+ {
+     strRet.clear();
+-    loop
++    loopx
+     {
+         string strLine;
+         if (!RecvLineIRC(hSocket, strLine))
+diff --git a/src/main.cpp b/src/main.cpp
+index f406a80..a9ca4fa 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -1270,7 +1270,7 @@ bool CTransaction::ConnectInputs(MapPrevTx inputs,
+                 return DoS(100, error("ConnectInputs() : txin values out of range"));
+ 
+         }
+-        // The first loop above does all the inexpensive checks.
++        // The first loopx above does all the inexpensive checks.
+         // Only if ALL inputs pass do we perform expensive ECDSA signature checks.
+         // Helps prevent CPU exhaustion attacks.
+         for (unsigned int i = 0; i < vin.size(); i++)
+@@ -2063,7 +2063,7 @@ static unsigned int nCurrentBlockFile = 1;
+ FILE* AppendBlockFile(unsigned int& nFileRet)
+ {
+     nFileRet = 0;
+-    loop
++    loopx
+     {
+         FILE* file = OpenBlockFile(nCurrentBlockFile, 0, "ab");
+         if (!file)
+diff --git a/src/neoscrypt.c b/src/neoscrypt.c
+index c8444d9..e0d620c 100644
+--- a/src/neoscrypt.c
++++ b/src/neoscrypt.c
+@@ -182,7 +182,7 @@ static inline void neoscrypt_hmac_init_sha256(sha256_hmac_state *st,
+     uint *P = (uint *) pad;
+     uint i;
+ 
+-    /* The pad initialisation for the inner loop */
++    /* The pad initialisation for the inner loopx */
+     for(i = 0; i < (BLOCK_SIZE >> 2); i++)
+       P[i] = 0x36363636;
+ 
+@@ -202,7 +202,7 @@ static inline void neoscrypt_hmac_init_sha256(sha256_hmac_state *st,
+     /* h(inner || pad) */
+     neoscrypt_hash_update_sha256(&st->inner, pad, BLOCK_SIZE);
+ 
+-    /* The pad re-initialisation for the outer loop */
++    /* The pad re-initialisation for the outer loopx */
+     for(i = 0; i < (BLOCK_SIZE >> 2); i++)
+        P[i] ^= (0x36363636 ^ 0x5C5C5C5C);
+ 
+diff --git a/src/net.cpp b/src/net.cpp
+index 64b7d63..a695fed 100644
+--- a/src/net.cpp
++++ b/src/net.cpp
+@@ -18,7 +18,7 @@
+ #endif
+ 
+ #ifdef USE_UPNP
+-#include <miniupnpc/miniwget.h>
++#include <miniupnpc/miniwget.h>  //sudo apt-get install miniupnpc-dev
+ #include <miniupnpc/miniupnpc.h>
+ #include <miniupnpc/upnpcommands.h>
+ #include <miniupnpc/upnperrors.h>
+@@ -149,7 +149,7 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer)
+ bool RecvLine(SOCKET hSocket, string& strLine)
+ {
+     strLine = "";
+-    loop
++    loopx
+     {
+         char c;
+         int nBytes = recv(hSocket, &c, 1, 0);
+@@ -322,7 +322,7 @@ bool GetMyExternalIP2(const CService& addrConnect, const char* pszGet, const cha
+     {
+         if (strLine.empty()) // HTTP response is separated from headers by blank line
+         {
+-            loop
++            loopx
+             {
+                 if (!RecvLine(hSocket, strLine))
+                 {
+@@ -794,7 +794,7 @@ void ThreadSocketHandler2(void* parg)
+     list<CNode*> vNodesDisconnected;
+     unsigned int nPrevNodeCount = 0;
+ 
+-    loop
++    loopx
+     {
+         //
+         // Disconnect nodes
+@@ -1213,7 +1213,7 @@ void ThreadMapPort2(void* parg)
+         else
+             printf("UPnP Port Mapping successful.\n");
+         int i = 1;
+-        loop {
++        loopx {
+             if (fShutdown || !fUseUPnP)
+             {
+                 r = UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, port, "TCP", 0);
+@@ -1248,7 +1248,7 @@ void ThreadMapPort2(void* parg)
+         freeUPNPDevlist(devlist); devlist = 0;
+         if (r != 0)
+             FreeUPNPUrls(&urls);
+-        loop {
++        loopx {
+             if (fShutdown || !fUseUPnP)
+                 return;
+             Sleep(2000);
+@@ -1653,7 +1653,7 @@ void ThreadOpenAddedConnections2(void* parg)
+         return;
+     }
+ 
+-    loop
++    loopx
+     for (unsigned int i = 0; true; i++)
+     {
+         list<string> lAddresses(0);
+diff --git a/src/qt/addressbookpage.cpp b/src/qt/addressbookpage.cpp
+index bcc21e1..6f85b91 100644
+--- a/src/qt/addressbookpage.cpp
++++ b/src/qt/addressbookpage.cpp
+@@ -135,8 +135,8 @@ void AddressBookPage::setModel(AddressTableModel *model)
+     // Set column widths
+     ui->tableView->horizontalHeader()->resizeSection(
+             AddressTableModel::Address, 320);
+-    ui->tableView->horizontalHeader()->setResizeMode(
+-            AddressTableModel::Label, QHeaderView::Stretch);
++    ui->tableView->horizontalHeader()->stretchLastSection();//setResizeMode(
++            // mco-mcoAddressTableModel::Label, QHeaderView::Stretch);
+ 
+     connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+             this, SLOT(selectionChanged()));
+diff --git a/src/qt/bitcoin.cpp b/src/qt/bitcoin.cpp
+index 1b4e5d0..4674801 100644
+--- a/src/qt/bitcoin.cpp
++++ b/src/qt/bitcoin.cpp
+@@ -147,8 +147,8 @@ int main(int argc, char *argv[])
+ #endif
+ 
+     // Internal string conversion is all UTF-8
+-    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+-    QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
++    ///mco-mco QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
++    ///mco-mco QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
+ 
+     Q_INIT_RESOURCE(bitcoin);
+     QApplication app(argc, argv);
+diff --git a/src/qt/bitcoingui.cpp b/src/qt/bitcoingui.cpp
+index d5fb548..efdbb5f 100644
+--- a/src/qt/bitcoingui.cpp
++++ b/src/qt/bitcoingui.cpp
+@@ -905,7 +905,9 @@ void BitcoinGUI::encryptWallet(bool status)
+ 
+ void BitcoinGUI::backupWallet()
+ {
+-    QString saveDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
++    QString basedir = getenv("HOME");
++
++    QString saveDir = basedir;
+     QString filename = QFileDialog::getSaveFileName(this, tr("Backup Wallet"), saveDir, tr("Wallet Data (*.dat)"));
+     if(!filename.isEmpty()) {
+         if(!walletModel->backupWallet(filename)) {
+diff --git a/src/qt/coincontroldialog.cpp b/src/qt/coincontroldialog.cpp
+index 1784f12..abaf91b 100644
+--- a/src/qt/coincontroldialog.cpp
++++ b/src/qt/coincontroldialog.cpp
+@@ -97,7 +97,7 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
+     connect(ui->treeWidget, SIGNAL(itemChanged( QTreeWidgetItem*, int)), this, SLOT(viewItemChanged( QTreeWidgetItem*, int)));
+ 
+     // Header click
+-    ui->treeWidget->header()->setClickable(true);
++    // mco-mco ui->treeWidget->header()-setClickable(true);
+     connect(ui->treeWidget->header(), SIGNAL(sectionClicked(int)), this, SLOT(headerSectionClicked(int)));
+ 
+     // Confirm button
+diff --git a/src/qt/guiutil.cpp b/src/qt/guiutil.cpp
+index 034ff24..2c8aa1e 100644
+--- a/src/qt/guiutil.cpp
++++ b/src/qt/guiutil.cpp
+@@ -82,26 +82,33 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
+     SendCoinsRecipient rv;
+     rv.address = uri.path();
+     rv.amount = 0;
+-    QList<QPair<QString, QString> > items = uri.queryItems();
+-    for (QList<QPair<QString, QString> >::iterator i = items.begin(); i != items.end(); i++)
++    // mco-mco QList<QPair<QString, QString> > items = uri.queryItems();
++
++    QString items = uri.query();// queryItems();
++    QStringList list = items.split('&');
++
++    //for (QList<QPair<QString, QString> >::iterator i = items.begin(); i != items.end(); i++)
++    for (QStringList::iterator it = list.begin(); it != list.end(); ++it)
+     {
++        QStringList pairs = it->split('=');
++
+         bool fShouldReturnFalse = false;
+-        if (i->first.startsWith("req-"))
++        if (pairs[0].startsWith("req-"))
+         {
+-            i->first.remove(0, 4);
++            pairs[0].remove(0, 4);
+             fShouldReturnFalse = true;
+         }
+ 
+-        if (i->first == "label")
++        if (pairs[0] == "label")
+         {
+-            rv.label = i->second;
++            rv.label =pairs[1];
+             fShouldReturnFalse = false;
+         }
+-        else if (i->first == "amount")
++        else if (pairs[0] == "amount")
+         {
+-            if(!i->second.isEmpty())
++            if(!pairs[1].isEmpty())
+             {
+-                if(!BitcoinUnits::parse(BitcoinUnits::BTC, i->second, &rv.amount))
++                if(!BitcoinUnits::parse(BitcoinUnits::BTC, pairs[1], &rv.amount))
+                 {
+                     return false;
+                 }
+@@ -180,7 +187,7 @@ QString getSaveFileName(QWidget *parent, const QString &caption,
+     QString myDir;
+     if(dir.isEmpty()) // Default to user documents location
+     {
+-        myDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
++        myDir = getenv("HOME");
+     }
+     else
+     {
+diff --git a/src/qt/miningpage.cpp b/src/qt/miningpage.cpp
+index 112e6cf..40bf448 100644
+--- a/src/qt/miningpage.cpp
++++ b/src/qt/miningpage.cpp
+@@ -85,10 +85,10 @@ void MiningPage::startPoolMining()
+     QString urlLine = QString("%1:%2").arg(url, ui->portLine->text());
+     QString userpassLine = QString("%1:%2").arg(ui->usernameLine->text(), ui->passwordLine->text());
+     args << "-a" << (fNeoScrypt ? "neoscrypt" : "scrypt");
+-    args << "-s" << ui->scantimeBox->text().toAscii();
+-    args << "-o" << urlLine.toAscii();
+-    args << "-O" << userpassLine.toAscii();
+-    args << "-t" << ui->threadsBox->text().toAscii();
++    args << "-s" << ui->scantimeBox->text().toUtf8();
++    args << "-o" << urlLine.toUtf8();
++    args << "-O" << userpassLine.toUtf8();
++    args << "-t" << ui->threadsBox->text().toUtf8();
+     args << "-r" << "-1"; // Retry forever.
+     args << "-P"; // This is needed for this to work correctly on Windows. Extra protocol dump helps flush the buffer quicker.
+ 
+diff --git a/src/qt/overviewpage.cpp b/src/qt/overviewpage.cpp
+index 9e4d785..9c6d86b 100644
+--- a/src/qt/overviewpage.cpp
++++ b/src/qt/overviewpage.cpp
+@@ -45,10 +45,12 @@ public:
+         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
+         QVariant value = index.data(Qt::ForegroundRole);
+         QColor foreground = option.palette.color(QPalette::Text);
++        /* mco-mco
+         if(qVariantCanConvert<QColor>(value))
+         {
+             foreground = qvariant_cast<QColor>(value);
+         }
++        */
+ 
+         painter->setPen(foreground);
+         painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
+diff --git a/src/qt/qtipcserver.cpp b/src/qt/qtipcserver.cpp
+index ec919e3..117b90f 100644
+--- a/src/qt/qtipcserver.cpp
++++ b/src/qt/qtipcserver.cpp
+@@ -56,7 +56,7 @@ static void ipcThread2(void* pArg)
+     size_t nSize = 0;
+     unsigned int nPriority = 0;
+ 
+-    loop
++    loopx
+     {
+         ptime d = boost::posix_time::microsec_clock::universal_time() + millisec(100);
+         if (mq->timed_receive(&buffer, sizeof(buffer), nSize, nPriority, d))
+diff --git a/src/qt/rpcconsole.cpp b/src/qt/rpcconsole.cpp
+index 20fe5c0..dcc32e4 100644
+--- a/src/qt/rpcconsole.cpp
++++ b/src/qt/rpcconsole.cpp
+@@ -301,13 +301,13 @@ void RPCConsole::startExecutor()
+     connect(this, SIGNAL(cmdRequest(QString)), executor, SLOT(request(QString)));
+     // On stopExecutor signal
+     // - queue executor for deletion (in execution thread)
+-    // - quit the Qt event loop in the execution thread
++    // - quit the Qt event loopx in the execution thread
+     connect(this, SIGNAL(stopExecutor()), executor, SLOT(deleteLater()));
+     connect(this, SIGNAL(stopExecutor()), thread, SLOT(quit()));
+     // Queue the thread for deletion (in this thread) when it is finished
+     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+ 
+-    // Default implementation of QThread::run() simply spins up an event loop in the thread,
++    // Default implementation of QThread::run() simply spins up an event loopx in the thread,
+     // which is what we want.
+     thread->start();
+ }
+diff --git a/src/qt/transactionview.cpp b/src/qt/transactionview.cpp
+index dc2d368..01e23c5 100644
+--- a/src/qt/transactionview.cpp
++++ b/src/qt/transactionview.cpp
+@@ -176,7 +176,7 @@ void TransactionView::setModel(WalletModel *model)
+         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Status, 23);
+         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Date, 120);
+         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Type, 120);
+-        transactionView->horizontalHeader()->setResizeMode(TransactionTableModel::ToAddress, QHeaderView::Stretch);
++        ///mco-mcotransactionView->horizontalHeader()->setResizeMode(TransactionTableModel::ToAddress, QHeaderView::Stretch);
+         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Amount, 100);
+     }
+ }
+diff --git a/src/script.cpp b/src/script.cpp
+index 0da20c6..610f49d 100644
+--- a/src/script.cpp
++++ b/src/script.cpp
+@@ -1242,7 +1242,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
+         // Compare
+         CScript::const_iterator pc1 = script1.begin();
+         CScript::const_iterator pc2 = script2.begin();
+-        loop
++        loopx
+         {
+             if (pc1 == script1.end() && pc2 == script2.end())
+             {
+diff --git a/src/util.cpp b/src/util.cpp
+index f6f47f5..7a7da37 100644
+--- a/src/util.cpp
++++ b/src/util.cpp
+@@ -288,7 +288,7 @@ string vstrprintf(const std::string &format, va_list ap)
+     char* p = buffer;
+     int limit = sizeof(buffer);
+     int ret;
+-    loop
++    loopx
+     {
+         va_list arg_ptr;
+         va_copy(arg_ptr, ap);
+@@ -335,7 +335,7 @@ void ParseString(const string& str, char c, vector<string>& v)
+         return;
+     string::size_type i1 = 0;
+     string::size_type i2;
+-    loop
++    loopx
+     {
+         i2 = str.find(c, i1);
+         if (i2 == str.npos)
+@@ -451,7 +451,7 @@ vector<unsigned char> ParseHex(const char* psz)
+ {
+     // convert hex dump to vector
+     vector<unsigned char> vch;
+-    loop
++    loopx
+     {
+         while (isspace(*psz))
+             psz++;
+@@ -905,7 +905,7 @@ string DecodeBase32(const string& str)
+ 
+ bool WildcardMatch(const char* psz, const char* mask)
+ {
+-    loop
++    loopx
+     {
+         switch (*mask)
+         {
+diff --git a/src/util.h b/src/util.h
+index 5d57e19..55b62d1 100644
+--- a/src/util.h
++++ b/src/util.h
+@@ -41,10 +41,11 @@ typedef unsigned int    uint;
+ typedef unsigned short  ushort;
+ typedef unsigned char   uchar;
+ 
+-static const int64 COIN = 100000000;
+-static const int64 CENT = 1000000;
++static const int64_t COIN = 100000000;
++static const int64_t CENT = 1000000;
+ 
+-#define loop                for (;;)
++
++#define loopx                while (1)
+ #define BEGIN(a)            ((char*)&(a))
+ #define END(a)              ((char*)&((&(a))[1]))
+ #define UBEGIN(a)           ((unsigned char*)&(a))
+diff --git a/src/wallet.cpp b/src/wallet.cpp
+index cffadd8..3f45257 100644
+--- a/src/wallet.cpp
++++ b/src/wallet.cpp
+@@ -1100,7 +1100,7 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
+         CTxDB txdb("r");
+         {
+             nFeeRet = nTransactionFee;
+-            loop
++            loopx
+             {
+                 wtxNew.vin.clear();
+                 wtxNew.vout.clear();
+diff --git a/src/walletdb.cpp b/src/walletdb.cpp
+index 4a4b6c3..b2ae814 100644
+--- a/src/walletdb.cpp
++++ b/src/walletdb.cpp
+@@ -69,7 +69,7 @@ void CWalletDB::ListAccountCreditDebit(const string& strAccount, list<CAccountin
+     if (!pcursor)
+         throw runtime_error("CWalletDB::ListAccountCreditDebit() : cannot create DB cursor");
+     unsigned int fFlags = DB_SET_RANGE;
+-    loop
++    loopx
+     {
+         // Read next record
+         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+@@ -130,7 +130,7 @@ int CWalletDB::LoadWallet(CWallet* pwallet)
+             return DB_CORRUPT;
+         }
+ 
+-        loop
++        loopx
+         {
+             // Read next record
+             CDataStream ssKey(SER_DISK, CLIENT_VERSION);
