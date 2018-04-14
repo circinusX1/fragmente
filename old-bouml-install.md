@@ -23,3 +23,9 @@ The bouml should be available under Main Menu - > Programming
 ### For full links check the post here:
 
 http://comarius.blogspot.ca/2016/02/bouml-421-free-version-for-ubuntu-13-x64.html
+
+
+### tips
+ln -s /usr/lib/x86_64-linux-gnu/libmng.so.2 /usr/lib/x86_64-linux-gnu/libmng.so.1
+
+
