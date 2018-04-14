@@ -4,7 +4,7 @@ Ubuntu 13 and 14
 This is a BOUML version prior to licensing stuff. BOUML release 4.21
 Prerequisites:
 
-    Ubuntu: Ubuntu 14.04.3 LTS
+    Ubuntu: Ubuntu 16.XX
 
  - You  might be missing more dependencies, because I might have them installed but this is the procedure.
 
