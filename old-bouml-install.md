@@ -8,7 +8,8 @@ Prerequisites:
 
  - You  might be missing more dependencies, because I might have them installed but this is the procedure.
 
-    Goto http://www.ubuntuupdates.org/package/core/precise/universe/base/bouml or download the 64 bit version from here
+    Goto http://www.ubuntuupdates.org/package/core/precise/universe/base/bouml or download the 64 bit version from 
+    
     Goto https://launchpad.net/ubuntu/quantal/amd64/libqt3-mt/3:3.3.8-b-8ubuntu3    or download the deb package from here
     Goto https://packages.debian.org/sid/amd64/libmng1/download  or download it from here
     Goto https://packages.debian.org/sid/amd64/libjpeg62-turbo/download or download the deb from here 
@@ -18,3 +19,7 @@ Prerequisites:
     or http://http.us.debian.org/debian/pool/main/libj/libjpeg-turbo/libjpeg62-turbo_1.3.1-12_amd64.deb
 
 The bouml should be available under Main Menu - > Programming
+
+### For full links check the post here:
+
+https://www.blogger.com/blogger.g?blogID=4002298185017052#editor/target=post;postID=5201298989247017799
