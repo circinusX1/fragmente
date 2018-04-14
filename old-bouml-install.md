@@ -22,4 +22,4 @@ The bouml should be available under Main Menu - > Programming
 
 ### For full links check the post here:
 
-https://www.blogger.com/blogger.g?blogID=4002298185017052#editor/target=post;postID=5201298989247017799
+http://comarius.blogspot.ca/2016/02/bouml-421-free-version-for-ubuntu-13-x64.html
