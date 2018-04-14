@@ -1,4 +1,4 @@
- INSTALL BOUML FREE
+ INSTALL OLD BOUML WITH FILE SAVE AND SUCH...
 Ubuntu 13 and 14 
 
 This is a BOUML version prior to licensing stuff. BOUML release 4.21
