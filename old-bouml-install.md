@@ -28,4 +28,11 @@ http://comarius.blogspot.ca/2016/02/bouml-421-free-version-for-ubuntu-13-x64.htm
 ### tips
 ln -s /usr/lib/x86_64-linux-gnu/libmng.so.2 /usr/lib/x86_64-linux-gnu/libmng.so.1
 
+ 3052  sudo dpkg -i libjpeg62-turbo_1.5.2-2+b1_amd64.deb 
+ 3090  sudo dpkg -i libmng1_1.0.10+dfsg-3.1+b3_amd64.deb
+ 3091  sudo dpkg -i libqt3-mt_3.3.8-b-8ubuntu3_amd64.deb
+ 3093  sudo dpkg -i bouml_4.21-1_amd64.deb
+
+
+
 
