@@ -1,5 +1,8 @@
 #!/bin/bash
-
+#
+# installs a binary as a service. creates /systemd/system start up service file
+# usage:  sudo instasservice binary
+#
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
