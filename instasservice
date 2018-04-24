@@ -1,0 +1,57 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
+[[ ! $1 ]] && echo "pass in the binary you want to run as service" && exit
+exe=$1
+cd=$(pwd)
+chmod +x $exe
+
+echo "Description ?"
+read desc
+
+srvname=${exe}.service
+echo "making ${srvname}"
+service=/lib/systemd/system/${srvname}
+if [[ -f ${service} ]];then
+    echo "${srvname} Already exists. Wanna stop and remove? (y/n)"
+    read yn
+    if [[ $yn == 'y' ]];then
+        systemctl stop ${srvname}
+        systemctl disable ${srvname}
+        systemctl status ${srvname}
+        rm ${service}
+    fi
+    exit 0
+fi
+
+echo "[Unit]"   >   ${service}
+echo "Description = ${desc}" >> ${service}
+echo "After = systemd-sysctl.service systemd-modules-load.service systemd-sysusers.service" >> ${service}
+
+echo "" >> ${service}
+echo "[Service]" >> ${service}
+echo "ExecStart = ${cd}/${exe}" >> ${service}
+
+echo "" >> ${service}
+echo "[Install]" >> ${service}
+echo "WantedBy = multi-user.target" >> ${service}
+
+if [[ -f ${service} ]];then
+    echo "Wanna edit before start ? (y/n)"
+    read yn    
+    [[ $yn == 'y' ]] && nano ${service}    
+    systemctl enable ${srvname}
+    systemctl reload ${srvname}
+    systemctl restart ${srvname}
+    systemctl status ${srvname}
+    
+else
+    echo "no such ${service}"
+fi
+
+
+
