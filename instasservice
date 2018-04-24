@@ -26,7 +26,7 @@ if [[ -f ${service} ]];then
         systemctl stop ${srvname}
         systemctl disable ${srvname}
         systemctl status ${srvname}
-        rm ${service}
+        # rm ${service}
     fi
     exit 0
 fi
