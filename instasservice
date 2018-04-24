@@ -28,7 +28,7 @@ if [[ -f ${service} ]];then
         systemctl status ${srvname}
         # rm ${service}
     fi
-    exit 0
+    exit
 fi
 
 echo "[Unit]"   >   ${service}
