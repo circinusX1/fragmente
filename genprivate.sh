@@ -12,3 +12,12 @@ openssl req -new -key privkey.pem -out certreq.csr -subj "/C=RO/ST=AB/L=AB/O=Non
 
 echo "create a sign request"
 openssl x509 -req -in certreq.csr -signkey privkey.pem -out newcert.pem
+
+
+
+### OR 
+
+openssl genrsa -out rsa_1024_priv.pem 1024
+openssl rsa -pubout -in rsa_1024_priv.pem -out rsa_1024_pub.pem
+
+
