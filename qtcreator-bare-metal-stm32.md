@@ -1,4 +1,4 @@
-# Compiling s2w10lqt.creator  using qt 5.12.*
+# Compiling  using qt 5.12.*
 
 * Make sure you have qtcreator 5.12 or greater.
 
